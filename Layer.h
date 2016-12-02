@@ -16,12 +16,17 @@
 #include <random>
 #include <algorithm>
 #include <cmath>
+#include "NeuralNetworkExceptions.h"
 
 #define HIDDENLS 400
 #define W_INIT_MAX 0.5
 #define OUTPUTS 121
 #define IMAGEX 20
 #define IMAGEY 20
+#define N 0.95
+#define BIGU 0.9
+#define SMALLU 0.0001
+#define LAMPA 0.0001
 
 using matrix = std::vector<std::vector<double>>;
 

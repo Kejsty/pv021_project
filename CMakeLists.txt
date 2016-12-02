@@ -1,10 +1,10 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.3)
 project(pv021_project)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Wall -Wextra -pedantic")
 
 set(SOURCES NeuralNetwork.cpp Layer.h NeuralNetwork.h
-        algorithms.cpp main.cpp HiddenLayer.cpp HiddenLayer.h OutputLayer.cpp OutputLayer.h InputLayer.cpp InputLayer.h HiddenLayerSnapshot.h OutputLayerSnapshot.h)
+        algorithms.cpp main.cpp HiddenLayer.cpp HiddenLayer.h OutputLayer.cpp OutputLayer.h InputLayer.cpp InputLayer.h HiddenLayerSnapshot.h OutputLayerSnapshot.h NeuralNetworkExceptions.h)
 add_executable(neuralNetwork ${SOURCES})
 
 include_directories(pv021_project)

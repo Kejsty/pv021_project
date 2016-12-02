@@ -22,6 +22,10 @@ InputLayer::InputLayer( const std::vector<double> &x, const std::vector<double> 
 
 InputLayer::InputLayer( const std::string &path ) : currentValues(3), realValues(2) {
     std::ifstream fileStream(path);
+
+    if (!fileStream.good())
+        throw InvalidInputFileException("Unable to open input file " + path);
+
     double x,y,e;
     while (fileStream.good()) {
         fileStream >> x >> y >> e;

@@ -12,7 +12,7 @@ class InputLayer : public Layer {
     std::vector<double> currentValues; //x,y,e, e must be represented as double
     std::vector<double> realValues; //x,y,e, e must be represented as double
     std::queue<double, std::deque<double>> _x, _y, _e;
-    size_t size() const {
+    size_t size() const override {
         return  3;
     }
 public:
