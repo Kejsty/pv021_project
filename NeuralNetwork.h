@@ -5,6 +5,7 @@
 #ifndef PV021_PROJECT_NEURALNETWORK_H
 #define PV021_PROJECT_NEURALNETWORK_H
 
+#include <memory>
 #include "InputLayer.h"
 #include "HiddenLayer.h"
 #include "OutputLayer.h"
