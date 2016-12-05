@@ -40,6 +40,11 @@ public:
                 neuronWeights.resize(HSIZE);
                 std::generate(neuronWeights.begin(), neuronWeights.end(), [&unif, &re](){ return unif(re);});
             }
+            for (int stdDevPosition = 1; stdDevPosition < 121; stdDevPosition += 6) {
+                // so the std devs are initialized to 0.075
+                mixtures[stdDevPosition + m::sig1] = -2.59027;
+                mixtures[stdDevPosition + m::sig2] = -2.59027;
+            }
         }
 
         std::generate(mixtures.begin(), mixtures.end(), [&unif, &re](){ return unif(re);});
