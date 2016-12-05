@@ -33,24 +33,23 @@ class OutputLayerSnapshot {
 public:
 
 
-    OutputLayerSnapshot( const std::vector<double> &mixtures ) : mixtures( mixtures ) , _errors(OUTPUTS) { }
+    OutputLayerSnapshot( const std::vector<double> &mixtures ) : mixtures( mixtures ) , _errors(OSIZE) { }
 
     void setNextInput( const std::vector<double> &nextInput ) {
         OutputLayerSnapshot::nextInput = nextInput;
     }
 
     std::vector<double> evaluate() {
+#if PRINT
         std::cout << "Counting  Output snapshot with values: x1:" << nextInput[in::x1] << " x2 :" << nextInput[in::x2] << std::endl ;
+#endif
         assert(nextInput.size() > 0);
-        double sequenceLoss = 0.0;
         double responsibilitiesSum = 0.0;
         std::vector<double> responsibilities;
         for ( int j = 0; j < 20 ; ++j ) {
             double probabilityDensity = countN(nextInput[in::x1], nextInput[in::x2], j) * mixtures[j*6 + 1];
             responsibilities.push_back(probabilityDensity);
             responsibilitiesSum += probabilityDensity;
-            sequenceLoss -= log(probabilityDensity); // Eq 26
-            sequenceLoss -= nextInput[in::e] == 1 ? log(mixtures[0]) : log(1 - mixtures[0]); // Eq 26
         }
         assert(responsibilitiesSum != 0); ///IMPORTANT!!
         _errors[0] = nextInput[in::e] - mixtures[0]; // Eq 27
@@ -69,22 +68,27 @@ public:
             _errors[beg + m::mu1] = (C / currM[m::sig1])
                                     * (((nextInput[in::x1] - currM[m::mu1])/currM[m::sig1])
                                        - (currM[m::rho] * (nextInput[in::x2] - currM[m::mu2]) / currM[m::sig2]));
+            _errors[beg + m::mu1] *= - _errors[beg + m::pi];
 
             _errors[beg + m::mu2] = (C / currM[m::sig2])
                                     * (((nextInput[in::x2] - currM[m::mu2])/currM[m::sig2])
                                        - (currM[m::rho] * (nextInput[in::x1] - currM[m::mu1]) / currM[m::sig1]));
+            _errors[beg + m::mu2] *= - _errors[beg + m::pi];
 
             _errors[beg + m::sig1] = ((C * (nextInput[in::x1] - currM[m::mu1])) / currM[m::sig1])
                                     * (((nextInput[in::x1] - currM[m::mu1])/currM[m::sig1])
                                        - (currM[m::rho] * (nextInput[in::x2] - currM[m::mu2]) / currM[m::sig2])) - 1;
+            _errors[beg + m::sig1] *= - _errors[beg + m::pi];
 
             _errors[beg + m::sig2] = ((C * (nextInput[in::x2] - currM[m::mu2])) / currM[m::sig2])
                                     * (((nextInput[in::x2] - currM[m::mu2])/currM[m::sig2])
                                        - (currM[m::rho] * (nextInput[in::x1] - currM[m::mu1]) / currM[m::sig1])) - 1;
+            _errors[beg + m::sig2] *= - _errors[beg + m::pi];
 
             _errors[beg + m::rho] = ((nextInput[in::x1] - currM[m::mu1]) * (nextInput[in::x2] - currM[m::mu2]))
                                     / (currM[m::sig1] * currM[m::sig2])
                                     + currM[m::rho] * (1 - C * countZ(nextInput[in::x1], nextInput[in::x2], j));
+            _errors[beg + m::rho] *= - _errors[beg + m::pi];
         }
 
         return _errors;
@@ -112,9 +116,9 @@ public:
         double Z = countZ(x1,x2,mixtureIter);
         double partA = exp( (-Z) / ( 2  * (1 - pow(currM[m::rho],2))));
         double partB =  2 * M_PI * currM[m::sig1] * currM[m::sig2] * sqrt(1 - pow(currM[m::rho],2));
-        double N = partA/ partB;
+        double countedN = partA/ partB;
 //        std::cout << "N is " << N << std::endl;
-        return N;
+        return countedN;
     }
 
 

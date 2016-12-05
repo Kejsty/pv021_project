@@ -4,10 +4,10 @@
 
 #include "HiddenLayer.h"
 
-HiddenLayer::HiddenLayer(std::vector<Layer*> &&under) : innerValues(HIDDENLS),
-                                                        c(HIDDENLS),
+HiddenLayer::HiddenLayer(std::vector<Layer*> &&under) : innerValues(HSIZE),
+                                                        c(HSIZE),
                                                         _underLayers(std::move(under)),
-                                                        _weights(HIDDENLS)
+                                                        _weights(HSIZE)
 
 {
     //i'm in my own _underLayers - because of loop on every hidden layer
@@ -91,7 +91,7 @@ bool HiddenLayer::eval( ) {
 
 void HiddenLayer::backPropagate( const std::vector<double> & ) {
 
-    std::cout << "Step into: Hidden layer\n";
+//    std::cout << "Step into: Hidden layer\n";
     //[x_t, h_underL, h_old]
     matrix values(1);
     values[0].reserve(_weights[0][0].size());
@@ -99,16 +99,20 @@ void HiddenLayer::backPropagate( const std::vector<double> & ) {
         values[0].insert(values[0].end(),layer->getValues().begin(), layer->getValues().end());
     }
 
-    std::vector<double> myError(HIDDENLS);
+    std::vector<double> myError(HSIZE);
     std::fill(myError.begin(), myError.end(), 0.0);
-    std::vector<matrix> _weightsErrorSumOverTime(HIDDENLS, (matrix (_weights[0].size(),std::vector<double>(_weights[0][0].size()))));
-
+    std::vector<matrix> _weightsErrorSumOverTime(HSIZE, (matrix (_weights[0].size(),std::vector<double>(_weights[0][0].size()))));
+    std::vector<matrix> _weightsErrorGOverTime(HSIZE, (matrix (_weights[0].size(),std::vector<double>(_weights[0][0].size()))));
+    std::vector<matrix> _weightsErrorNOverTime(HSIZE, (matrix (_weights[0].size(),std::vector<double>(_weights[0][0].size()))));
+#if PRINT
     std::cout << "Processing " << snapshots.size() << "snapshots\n";
+#endif
     int position = 0;
     for ( auto it = snapshots.rbegin(); it != snapshots.rend(); it++ , ++position ) {
 
+#if PRINT
         std::cout << position << " : ";
-
+#endif
         //get my counted errors from layers above in this iteration
         std::fill(myError.begin(), myError.end(), 0.0);
         for (auto &layer : _aboveLayers) {
@@ -145,14 +149,32 @@ void HiddenLayer::backPropagate( const std::vector<double> & ) {
             //snapshot errors * current input values -> my weights erros, store it for weights adaptation at the end
             matrix resultAsMatrix(1, myResult);
             auto transposedResults = algorithms::transposeMatrix(resultAsMatrix);
-            auto bla = algorithms::matrixMultiplication(transposedResults,values );
-            algorithms::matrixSum(_weightsErrorSumOverTime[neuronId], bla );
+            auto currentWeightError = algorithms::matrixMultiplication(transposedResults,values );
+            for ( int gateId = 0; gateId < 4; ++gateId ) {
+                std::transform(_weightsErrorNOverTime[neuronId][gateId].begin(), _weightsErrorNOverTime[neuronId][gateId].end(), currentWeightError[gateId].begin(), _weightsErrorNOverTime[neuronId][gateId].begin(),
+                               [](double oldN, double currentError) {
+                                   return oldN * N + (1 - N)* pow(currentError, 2);
+                               });
+
+                std::transform(_weightsErrorGOverTime[neuronId][gateId].begin(), _weightsErrorGOverTime[neuronId][gateId].end(), currentWeightError[gateId].begin(), _weightsErrorGOverTime[neuronId][gateId].begin(),
+                               [](double oldG, double currentError) {
+                                   return oldG * N + (1 - N)* currentError;
+                               });
+
+                for ( size_t inputId = 0; inputId < currentWeightError[gateId].size(); ++inputId ) {
+                    _weightsErrorSumOverTime[neuronId][gateId][inputId] = BIGU * _weightsErrorSumOverTime[neuronId][gateId][inputId] -
+                                                                         SMALLU * currentWeightError[gateId][inputId] / sqrt(_weightsErrorNOverTime[neuronId][gateId][inputId] -
+                                                                                                                             pow(_weightsErrorGOverTime[neuronId][gateId][inputId],
+                                                                                                                                       2) + LAMPA);
+                }
+            }
 
         }
     }
 
-    //TODO upravit vahy na zaklade sum _weightsErrorSumOverTime
-    // to bude daky learning rate * toto, alebo daco podobne
+    for ( int neuronId = 0; neuronId < HSIZE; ++neuronId ) {
+        algorithms::matrixSum(_weights[neuronId], _weightsErrorSumOverTime[neuronId]);
+    }
 
     snapshots.clear();
 }

@@ -12,9 +12,6 @@ class InputLayer : public Layer {
     std::vector<double> currentValues; //x,y,e, e must be represented as double
     std::vector<double> realValues; //x,y,e, e must be represented as double
     std::queue<double, std::deque<double>> _x, _y, _e;
-    size_t size() const override {
-        return  3;
-    }
 public:
 
     InputLayer( const std::vector<double> &x, const std::vector<double> &y, const std::vector<double> &e );
@@ -35,7 +32,9 @@ public:
             std::cout << "BackProp stared with values : : " << currentValues[0] << ", " << currentValues[1]  << ", " << currentValues[2] << std::endl;
             return true;
         }
+#if PRINT
         std::cout << "current input values : " << currentValues[0] << ", " << currentValues[1]  << ", " << currentValues[2] << std::endl;
+#endif
         return false;
     }
     virtual void backPropagate( const std::vector<double> & ) override {
@@ -54,7 +53,11 @@ public:
         realValues[1]= _y.empty() ? 0 : _y.front();
     }
 
-    virtual const std::vector<double> getMyErrors( Layer * )  { return {}; } //will not be called!
+    virtual const std::vector<double> getMyErrors( Layer * )  override { return {}; } //will not be called!
+
+    size_t size() const override {
+        return  3;
+    }
 
 };
 

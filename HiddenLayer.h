@@ -32,7 +32,7 @@ public:
     virtual void backPropagate( const std::vector<double> &initError ) override;
 
     size_t size() const override {
-        return HIDDENLS;
+        return HSIZE;
     }
 
     void setAbove(Layer* above) {
@@ -44,7 +44,7 @@ public:
         return innerValues;
     }
 
-    virtual const std::vector<double> getMyErrors( Layer *me ) {
+    virtual const std::vector<double> getMyErrors( Layer *me ) override {
         auto it = _errorMap.find(me);
         if (me == this &&  it->second.size() == 0) {
             return {};

@@ -7,7 +7,7 @@
 #include <cstdio>
 #include <iostream>
 #include <numeric>
-#include <algorithm>
+#include <math.h>
 
 namespace algorithms {
     matrix matrixMultiplication(const matrix &fst, const matrix &snd) {

@@ -21,7 +21,7 @@ public:
     virtual bool eval() override;
     virtual void backPropagate( const std::vector<double> & ) override;
     virtual size_t size() const override {
-        return OUTPUTS;
+        return OSIZE;
     }
     virtual const std::vector<double> &getValues() const override {
         return mixtures;
@@ -30,14 +30,14 @@ public:
     OutputLayer( std::vector<Layer*> &&under, Layer *input) : _weights(under.size()),
                                                               _underLayers(std::move(under)),
                                                               _inputLayer(input),
-                                                              mixtures(OUTPUTS)
+                                                              mixtures(OSIZE)
     {
         std::uniform_real_distribution<double> unif(-W_INIT_MAX,W_INIT_MAX);
         std::default_random_engine re;
         for ( auto &layerWeights : _weights ) {
-            layerWeights.resize(OUTPUTS);
+            layerWeights.resize(OSIZE);
             for ( auto &neuronWeights : layerWeights) {
-                neuronWeights.resize(HIDDENLS);
+                neuronWeights.resize(HSIZE);
                 std::generate(neuronWeights.begin(), neuronWeights.end(), [&unif, &re](){ return unif(re);});
             }
         }
@@ -48,7 +48,7 @@ public:
         }
     }
 
-    virtual const std::vector<double> getMyErrors( Layer *me ) {
+    virtual const std::vector<double> getMyErrors( Layer *me ) override {
         auto it = _errorMap.find(me);
         assert (it != _errorMap.end());
         assert (it->second.size() > 0);

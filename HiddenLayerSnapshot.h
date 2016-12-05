@@ -35,9 +35,9 @@ public:
     }
 
     matrix evaluate(const std::vector<double> &hError) {
-
+#if PRINT
         std::cout << "counting Hidden Layer snapshot \n";
-
+#endif
         for ( size_t neuronId = 0; neuronId < values.size( ); ++neuronId ) {
             double iErr, fErr, cErr, oErr, c_partErr;
             // val order : i, f, o, c,c_partial, c_old;
