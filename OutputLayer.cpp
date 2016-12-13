@@ -21,8 +21,6 @@ bool OutputLayer::eval( ) {
         }
     }
 
-    //TODO : do something with the sum?? some kind of activation function?
-
     //count mixtures
     //e_t
     auto e_t = mixtures[0];
@@ -40,21 +38,14 @@ bool OutputLayer::eval( ) {
 
         //standart deviations
         mixtures[i+m::sig1] = exp(mixtures[i+m::sig1]);
-        if(mixtures[i+m::sig1] <= 0) {
-            std::cerr << mixtures[i+m::sig1] << std::endl;
-        }
-        assert(mixtures[i+m::sig1] > 0);
+//        assert(mixtures[i+m::sig1] > 0);
         mixtures[i+m::sig2] = exp(mixtures[i+m::sig2]);
-        if(mixtures[i+m::sig2] <= 0) {
-            std::cerr << mixtures[i+m::sig2 ] << std::endl;
-        }
-        assert(mixtures[i+m::sig2] > 0);
+//        assert(mixtures[i+m::sig2] > 0);
 
         //correlations
         mixtures[i+m::rho] = tanh(mixtures[i+5]);
-        assert(mixtures[i+m::rho] > -1 &&  mixtures[i+m::rho] < 1);
+//        assert(mixtures[i+m::rho] > -1 &&  mixtures[i+m::rho] < 1);
     }
-
 
     for ( int i = 1; i < OSIZE; i += 6 ) {
         //mixtureWeights normalization
@@ -67,9 +58,6 @@ bool OutputLayer::eval( ) {
 }
 
 void OutputLayer::backPropagate( const std::vector<double> &lastInput ) {
-#if PRINT
-    std::cout << "Step into: Hidden layer\n";
-#endif
     snapshots[snapshots.size() - 1].setNextInput(lastInput);
 
     //to modify weights at the end
@@ -80,22 +68,10 @@ void OutputLayer::backPropagate( const std::vector<double> &lastInput ) {
     //count my current error from my snapshot
     matrix weightsForErrMap(_underLayers.size());
 #if PRINT
-    std::cout << "Processing " << snapshots.size() << "snapshots\n";
+    std::cout << "OL : Processing " << snapshots.size() << "snapshots\n";
 #endif
-    int position = 0;
-    for ( auto it = snapshots.rbegin(); it != snapshots.rend(); ++it , ++position) {
-#if PRINT
-        std::cout << position << " : ";
-#endif
+    for ( auto it = snapshots.rbegin(); it != snapshots.rend(); ++it ) {
         std::vector<double> result = it->evaluate();
-        if ( position == 0) {
-            std::cout << "Output errors: \n";
-            for (auto &error : result) {
-                std::cout << error << ",  ";
-            }
-            std::cout << std::endl;
-        }
-
         //transposed weights * snapshot errors -> errors for layers under me
         for ( size_t layerId = 0; layerId < _underLayers.size(); ++layerId ) {
             matrix transposedWeights = algorithms::transposeMatrix(_weights[layerId]);
@@ -107,7 +83,9 @@ void OutputLayer::backPropagate( const std::vector<double> &lastInput ) {
 
         //store counted error for me, and layers under me
         for ( size_t layerId = 0; layerId < _underLayers.size(); ++layerId ) {
+//            assert(weightsForErrMap[layerId].size() == _underLayers[layerId]->size());
             _errorMap.find(_underLayers[layerId])->second.push(weightsForErrMap[layerId]);
+            weightsForErrMap[layerId].clear();
         }
 
         //snapshot errors * current input values -> my weights error
@@ -119,19 +97,19 @@ void OutputLayer::backPropagate( const std::vector<double> &lastInput ) {
             for ( int outputId = 0; outputId < OSIZE; ++outputId ) {
                 std::transform(_weightsErrorNOverTime[layerId][outputId].begin(), _weightsErrorNOverTime[layerId][outputId].end(), currentWeightError[outputId].begin(), _weightsErrorNOverTime[layerId][outputId].begin(),
                                [](double oldN, double currentError) {
-                                   return oldN * N + (1 - N)* pow(currentError, 2);
+                                   return oldN * ALEF + (1 - ALEF)* pow(currentError, 2);
                                });
 
                 std::transform(_weightsErrorGOverTime[layerId][outputId].begin(), _weightsErrorGOverTime[layerId][outputId].end(), currentWeightError[outputId].begin(), _weightsErrorGOverTime[layerId][outputId].begin(),
                                [](double oldG, double currentError) {
-                                   return oldG * N + (1 - N)* currentError;
+                                   return oldG * ALEF + (1 - ALEF)* currentError;
                                });
 
                 for ( size_t neuronID = 0; neuronID < HSIZE; ++neuronID ) {
-                    _weightsErrorSumOverTime[layerId][outputId][neuronID] = BIGU * _weightsErrorSumOverTime[layerId][outputId][neuronID] -
-                                                                  SMALLU * currentWeightError[outputId][neuronID] / sqrt(_weightsErrorNOverTime[layerId][outputId][neuronID] -
+                    _weightsErrorSumOverTime[layerId][outputId][neuronID] = BET * _weightsErrorSumOverTime[layerId][outputId][neuronID] -
+                                                                  NUN * currentWeightError[outputId][neuronID] / sqrt(_weightsErrorNOverTime[layerId][outputId][neuronID] -
                                                                                                          pow(_weightsErrorGOverTime[layerId][outputId][neuronID],
-                                                                                               2) + LAMPA);
+                                                                                               2) + DALET);
                 }
             }
         }
@@ -141,13 +119,34 @@ void OutputLayer::backPropagate( const std::vector<double> &lastInput ) {
         algorithms::matrixSum(_weights[layerId], _weightsErrorSumOverTime[layerId]);
     }
 
-    //test that my output is OK
-    for ( auto &item : _errorMap) {
-        assert(item.second.size() == snapshots.size());
-        assert(item.second.front().size() == HSIZE);
-    }
+//    //test that my output is OK
+//    for ( auto &item : _errorMap) {
+//        assert(item.second.size() == snapshots.size());
+//        assert(snapshots.size() == 0  || item.second.front().size() == HSIZE);
+//    }
 
     snapshots.clear();
 }
+
+double OutputLayer::countMeanLogLossError( ) {
+
+    if (snapshots.size() > 0) {
+        snapshots[snapshots.size() - 1].setNextInput(_inputLayer->getValues());
+    }
+
+    double SequenceErrorSum = 0.0;
+    for ( auto it = snapshots.rbegin(); it != snapshots.rend(); ++it ) {
+        std::vector<double> result = it->evaluate( );
+        for ( double error : result ) {
+            SequenceErrorSum += error > 0 ? error : -1 * error;
+        }
+    }
+    double mean = SequenceErrorSum / snapshots.size();
+    snapshots.clear();
+    std::cout << "Sequence Output Error: " << mean << std::endl;
+    return 0;
+}
+
+
 
 

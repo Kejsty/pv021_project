@@ -17,5 +17,9 @@ struct InvalidInputFileException : NeuralNetworkException {
     InvalidInputFileException(const std::string &message) : NeuralNetworkException(message) {}
 };
 
+struct InvalidComputationException : NeuralNetworkException {
+    InvalidComputationException(const std::string &message) : NeuralNetworkException(message) {}
+};
+
 
 #endif //PV021_PROJECT_NEURALNETWORKEXCEPTIONS_H

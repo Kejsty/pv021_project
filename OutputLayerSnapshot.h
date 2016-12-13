@@ -40,9 +40,6 @@ public:
     }
 
     std::vector<double> evaluate() {
-#if PRINT
-        std::cout << "Counting  Output snapshot with values: x1:" << nextInput[in::x1] << " x2 :" << nextInput[in::x2] << std::endl ;
-#endif
         assert(nextInput.size() > 0);
         double responsibilitiesSum = 0.0;
         std::vector<double> responsibilities;
@@ -51,7 +48,9 @@ public:
             responsibilities.push_back(probabilityDensity);
             responsibilitiesSum += probabilityDensity;
         }
-        assert(responsibilitiesSum != 0); ///IMPORTANT!!
+        if(responsibilitiesSum == 0) {
+            throw InvalidComputationException("Responsibilities Sum is 0, in OutputLayerSnapshot::evaluate()");
+        }
         _errors[0] = nextInput[in::e] - mixtures[0]; // Eq 27
         std::transform(responsibilities.begin(), responsibilities.end(), responsibilities.begin(),
                        [&responsibilitiesSum](double responsibility){

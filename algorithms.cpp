@@ -12,10 +12,10 @@
 
 namespace algorithms {
     matrix matrixMultiplication(const matrix &fst, const matrix &snd) {
-            assert( fst.size( ) > 0 );
-            assert( snd.size( ) > 0 );
-            assert( snd[ 0 ].size( ) > 0 );
-            assert( fst[ 0 ].size( ) == snd.size( ));
+//            assert( fst.size( ) > 0 );
+//            assert( snd.size( ) > 0 );
+//            assert( snd[ 0 ].size( ) > 0 );
+//            assert( fst[ 0 ].size( ) == snd.size( ));
 
             matrix newMatrix( fst.size( ), std::vector<double>( snd[ 0 ].size( )));
             for ( size_t i = 0; i < fst.size( ); ++i ) {
@@ -44,10 +44,10 @@ namespace algorithms {
 
 
     matrix matrixSum( matrix &fst, const matrix &snd) {
-        assert( fst.size( ) > 0 );
-        assert( snd.size( ) > 0 );
-        assert( snd.size() == fst.size() );
-        assert( fst[ 0 ].size( ) == snd[0].size( ));
+//        assert( fst.size( ) > 0 );
+//        assert( snd.size( ) > 0 );
+//        assert( snd.size() == fst.size() );
+//        assert( fst[ 0 ].size( ) == snd[0].size( ));
 
         for ( size_t i = 0; i < fst.size() ; ++i ) {
             std::transform(fst[i].begin(), fst[i].end(), snd[i].begin(), fst[i].begin(), std::plus<double >());

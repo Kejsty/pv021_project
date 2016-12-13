@@ -20,12 +20,12 @@ public:
     HiddenLayerSnapshot(  std::vector<double> &&i,  std::vector<double> &&f, std::vector<double> &&o,
                           std::vector<double> &&c,  std::vector<double> &&c_partial,
                           std::vector<double> &&c_old ) : values(6), errors(4, std::vector<double>(i.size())) {
-        assert(i.size() > 0);
-        assert(i.size() ==  f.size());
-        assert(i.size() ==  o.size());
-        assert(i.size() ==  c.size());
-        assert(i.size() ==  c_partial.size());
-        assert(i.size() ==  c_old.size());
+//        assert(i.size() > 0);
+//        assert(i.size() ==  f.size());
+//        assert(i.size() ==  o.size());
+//        assert(i.size() ==  c.size());
+//        assert(i.size() ==  c_partial.size());
+//        assert(i.size() ==  c_old.size());
         values[0] = std::move(i);
         values[1] = std::move(f);
         values[2] = std::move(o);
@@ -35,9 +35,6 @@ public:
     }
 
     matrix evaluate(const std::vector<double> &hError) {
-#if PRINT
-        std::cout << "counting Hidden Layer snapshot \n";
-#endif
         for ( size_t neuronId = 0; neuronId < values.size( ); ++neuronId ) {
             double iErr, fErr, cErr, oErr, c_partErr;
             // val order : i, f, o, c,c_partial, c_old;

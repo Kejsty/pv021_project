@@ -8,6 +8,7 @@
 #include <map>
 #include "Layer.h"
 #include "HiddenLayerSnapshot.h"
+#include "InputLayer.h"
 
 class HiddenLayer : public Layer {
 
@@ -30,6 +31,20 @@ public:
     virtual bool eval() override;
 
     virtual void backPropagate( const std::vector<double> &initError ) override;
+
+    virtual void clear() override {
+        snapshots.clear();
+        for (auto &record : _errorMap) {
+            //Input Layer don't use it's error, and
+            // this Hidden Layer don't need it's last counted error
+            if ( dynamic_cast<InputLayer *>(record.first) || record.first == this) {
+                std::queue<std::vector<double>> empty;
+                record.second = empty;
+            }else {
+                assert(record.second.empty());
+            }
+        }
+    }
 
     size_t size() const override {
         return HSIZE;

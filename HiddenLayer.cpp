@@ -105,20 +105,17 @@ void HiddenLayer::backPropagate( const std::vector<double> & ) {
     std::vector<matrix> _weightsErrorGOverTime(HSIZE, (matrix (_weights[0].size(),std::vector<double>(_weights[0][0].size()))));
     std::vector<matrix> _weightsErrorNOverTime(HSIZE, (matrix (_weights[0].size(),std::vector<double>(_weights[0][0].size()))));
 #if PRINT
-    std::cout << "Processing " << snapshots.size() << "snapshots\n";
+    std::cout << "H : Processing " << snapshots.size() << "snapshots\n";
 #endif
-    int position = 0;
-    for ( auto it = snapshots.rbegin(); it != snapshots.rend(); it++ , ++position ) {
-
-#if PRINT
-        std::cout << position << " : ";
-#endif
+    for ( auto it = snapshots.rbegin(); it != snapshots.rend(); it++  ) {
         //get my counted errors from layers above in this iteration
         std::fill(myError.begin(), myError.end(), 0.0);
         for (auto &layer : _aboveLayers) {
-            auto propagatedLayers = layer->getMyErrors(this);
-            if (propagatedLayers.size() != 0) {
-                std::transform( myError.begin( ), myError.end( ), propagatedLayers.begin( ), myError.begin( ),
+            auto propagatedErrors = layer->getMyErrors(this);
+
+            if (propagatedErrors.size() != 0) {
+//                assert(propagatedErrors.size() == myError.size());
+                std::transform( myError.begin( ), myError.end( ), propagatedErrors.begin( ), myError.begin( ),
                                 std::plus<double>( ));
             }
         }
@@ -136,15 +133,12 @@ void HiddenLayer::backPropagate( const std::vector<double> & ) {
 
             //transposed weights * snapshot errors -> errors for layers under me
             for ( size_t layerId = 0; layerId < _underLayers.size(); ++layerId ) {
+                //TODO check! this is bullshit
                 auto transposed = algorithms::transposeMatrix(_weights[neuronId]);
                 weigthsForErrMap[layerId].push_back(
                         std::inner_product(transposed[layerId].begin(), transposed[layerId].end(), myResult.begin(), 0 ));
             }
 
-            //store counted error for me, and layers under me
-            for ( size_t layerId = 0; layerId < _underLayers.size(); ++layerId ) {
-                _errorMap.find(_underLayers[layerId])->second.push(weigthsForErrMap[layerId]);
-            }
 
             //snapshot errors * current input values -> my weights erros, store it for weights adaptation at the end
             matrix resultAsMatrix(1, myResult);
@@ -153,22 +147,27 @@ void HiddenLayer::backPropagate( const std::vector<double> & ) {
             for ( int gateId = 0; gateId < 4; ++gateId ) {
                 std::transform(_weightsErrorNOverTime[neuronId][gateId].begin(), _weightsErrorNOverTime[neuronId][gateId].end(), currentWeightError[gateId].begin(), _weightsErrorNOverTime[neuronId][gateId].begin(),
                                [](double oldN, double currentError) {
-                                   return oldN * N + (1 - N)* pow(currentError, 2);
+                                   return oldN * ALEF + (1 - ALEF)* pow(currentError, 2);
                                });
 
                 std::transform(_weightsErrorGOverTime[neuronId][gateId].begin(), _weightsErrorGOverTime[neuronId][gateId].end(), currentWeightError[gateId].begin(), _weightsErrorGOverTime[neuronId][gateId].begin(),
                                [](double oldG, double currentError) {
-                                   return oldG * N + (1 - N)* currentError;
+                                   return oldG * ALEF + (1 - ALEF)* currentError;
                                });
 
                 for ( size_t inputId = 0; inputId < currentWeightError[gateId].size(); ++inputId ) {
-                    _weightsErrorSumOverTime[neuronId][gateId][inputId] = BIGU * _weightsErrorSumOverTime[neuronId][gateId][inputId] -
-                                                                         SMALLU * currentWeightError[gateId][inputId] / sqrt(_weightsErrorNOverTime[neuronId][gateId][inputId] -
+                    _weightsErrorSumOverTime[neuronId][gateId][inputId] = BET * _weightsErrorSumOverTime[neuronId][gateId][inputId] -
+                                                                         NUN * currentWeightError[gateId][inputId] / sqrt(_weightsErrorNOverTime[neuronId][gateId][inputId] -
                                                                                                                              pow(_weightsErrorGOverTime[neuronId][gateId][inputId],
-                                                                                                                                       2) + LAMPA);
+                                                                                                                                       2) + DALET);
                 }
             }
 
+        }
+        //store counted error for me, and layers under me
+        for ( size_t layerId = 0; layerId < _underLayers.size(); ++layerId ) {
+//            assert(weigthsForErrMap[layerId].size() >= _underLayers[layerId]->size()); //we are counting errors also for input layer
+            _errorMap.find(_underLayers[layerId])->second.push(weigthsForErrMap[layerId]);
         }
     }
 

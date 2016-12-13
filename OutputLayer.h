@@ -18,8 +18,17 @@ class OutputLayer : public Layer {
     std::vector<OutputLayerSnapshot> snapshots;
 
 public:
+
+    double countMeanLogLossError()''
+    double countSunSquaredError() { return 0.0;}
     virtual bool eval() override;
     virtual void backPropagate( const std::vector<double> & ) override;
+    virtual void clear() override {
+        snapshots.clear();
+//        for (auto &record : _errorMap) {
+//            assert(record.second.empty());
+//        }
+    }
     virtual size_t size() const override {
         return OSIZE;
     }

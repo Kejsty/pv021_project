@@ -21,11 +21,11 @@
 #define HSIZE 400
 #define W_INIT_MAX 0.5
 #define OSIZE 121
-#define N 0.95
-#define BIGU 0.9
-#define SMALLU 0.0001
-#define LAMPA 0.0001
-#define PRINT 0
+#define ALEF 0.95
+#define BET 0.9
+#define NUN 0.0001
+#define DALET 0.0001
+#define PRINT 1
 
 using matrix = std::vector<std::vector<double>>;
 
@@ -44,6 +44,7 @@ class Layer {
 public:
     virtual bool eval() = 0;
     virtual void backPropagate( const std::vector<double> &initError ) = 0;
+    virtual void clear() = 0;
     virtual size_t size() const = 0;
     virtual const std::vector<double> &getValues() const  = 0;
     virtual const std::vector<double> getMyErrors( Layer *me )  = 0;
