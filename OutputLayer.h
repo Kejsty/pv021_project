@@ -19,7 +19,7 @@ class OutputLayer : public Layer {
 
 public:
 
-    double countMeanLogLossError()''
+    double countMeanLogLossError();
     double countSunSquaredError() { return 0.0;}
     virtual bool eval() override;
     virtual void backPropagate( const std::vector<double> & ) override;
