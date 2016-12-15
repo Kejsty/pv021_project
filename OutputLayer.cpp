@@ -119,7 +119,7 @@ void OutputLayer::backPropagate( const std::vector<double> &lastInput ) {
         algorithms::matrixSum(_weights[layerId], _weightsErrorSumOverTime[layerId]);
     }
 
-//    //test that my output is OK
+//    //test that my inputExample is OK
 //    for ( auto &item : _errorMap) {
 //        assert(item.second.size() == snapshots.size());
 //        assert(snapshots.size() == 0  || item.second.front().size() == HSIZE);
@@ -144,7 +144,7 @@ double OutputLayer::countMeanLogLossError( ) {
     double mean = SequenceErrorSum / snapshots.size();
     snapshots.clear();
     std::cout << "Sequence Output Error: " << mean << std::endl;
-    return 0;
+    return mean;
 }
 
 

@@ -124,6 +124,23 @@ public:
     const std::vector<double> &get_errors( ) const {
         return _errors;
     }
+
+    double countSnapshotError(){
+        double outputPropabMax = 0.0;
+        double maxX = 0, maxY = 0;
+        for (int mixBeg = 0; mixBeg < 121; mixBeg += 6) {
+            double outputPropab = 0.0;
+            for (int mixtureId = 0; mixtureId < 6; ++mixtureId) {
+                outputPropab += mixtures[mixBeg + m::pi]*countN(mixtures[mixBeg + m::mu1], mixtures[mixBeg + m::mu2], mixtureId);
+            }
+            if (outputPropab > outputPropabMax) {
+                outputPropabMax = outputPropab;
+                maxX = mixtures[mixBeg + m::mu1];
+                maxY = mixtures[mixBeg + m::mu2];
+            }
+        }
+        return pow((nextInput[0] - maxX), 2) + pow((nextInput[1] - maxY), 2);
+    }
 };
 
 

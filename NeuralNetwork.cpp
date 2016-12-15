@@ -22,8 +22,8 @@ void NeuralNetwork::run( ) {
                 layers[i - 1].get()->clear();
             }
         }
-        std::cout << "Starting testing!\n";
-        inputLayer->loadData("parseData/output");
+        std::cout << "Testing started!\n";
+        inputLayer->loadData("parseData/inputExample");
         while ( inputLayer->hasValues()) {
             while ( !inputLayer->eval()) {
                 for ( size_t i = 1; i < layers.size(); ++i ) {
@@ -32,7 +32,7 @@ void NeuralNetwork::run( ) {
             }
 
             if(inputLayer->isEndOfSequence()){
-                outputLayer->countMeanLogLossError();
+                outputLayer->countSumSquaredError();
             }
             for ( size_t i = layers.size(); i > 0; --i ) {
                 layers[i - 1].get()->clear();

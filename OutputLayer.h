@@ -20,7 +20,16 @@ class OutputLayer : public Layer {
 public:
 
     double countMeanLogLossError();
-    double countSunSquaredError() { return 0.0;}
+    double countSumSquaredError() {
+        double meanSnapshotError = 0.0;
+        for ( auto &snapshot : snapshots) {
+            meanSnapshotError += snapshot.countSnapshotError();
+        }
+        meanSnapshotError /= snapshots.size();
+        snapshots.clear();
+        std::cout << "Sequence Sum Squared Error: " << meanSnapshotError << std::endl;
+        return meanSnapshotError;
+    }
     virtual bool eval() override;
     virtual void backPropagate( const std::vector<double> & ) override;
     virtual void clear() override {
