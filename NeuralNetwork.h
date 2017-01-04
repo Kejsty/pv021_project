@@ -9,9 +9,11 @@
 #include "InputLayer.h"
 #include "HiddenLayer.h"
 #include "OutputLayer.h"
+#include "ImageMaker.h"
 
 class NeuralNetwork {
     std::vector<std::unique_ptr<Layer>> layers;
+    ImageMaker imageMaker;
 public:
     const std::vector<std::unique_ptr<Layer>> &getLayers( ) const {
             return layers;

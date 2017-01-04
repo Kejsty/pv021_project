@@ -4,7 +4,7 @@
 using namespace std;
 
 int main( ) {
-    NeuralNetwork nn("parseData/inputExample");
+    NeuralNetwork nn("C:\\Users\\xbendik\\ClionProjects\\pv021_project\\parseData\\inputExample");
     nn.run();
     return 0;
 }

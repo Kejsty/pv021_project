@@ -6,7 +6,12 @@
 #define PV021_PROJECT_OUTPUTLAYERSNAPSHOT_H
 
 
+#include <math.h>
 #include "Layer.h"
+
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
 
 enum in {
     x1 = 0
@@ -125,6 +130,24 @@ public:
         return _errors;
     }
 
+    // JB
+    // Eq. 23
+    double getProbOfInput(std::vector<double> input){
+        double responsibilitiesSum = 0.0;
+        std::vector<double> responsibilities;
+        for ( int j = 0; j < 20 ; ++j ) {
+            double probabilityDensity = countN(input[0], input[1], j) * mixtures[j*6 + 1];
+            responsibilities.push_back(probabilityDensity);
+            responsibilitiesSum += probabilityDensity;
+        }
+        if(input[2] == 1)
+            return responsibilitiesSum * mixtures[0];
+        else return responsibilitiesSum * (1 - mixtures[0]);
+    }
+
+    // Note JB
+    // pocita se ta chyba spravne? countN tady podle me bere spatne parametry. A ten zanoreny for cyklus by tam podle me taky nemel byt,
+    // celkem by se melo udelat jen 20 iteraci (je dvacet mixtures). Melo by to byt podobne, jako na zacatku metody evaluate()
     double countSnapshotError(){
         double outputPropabMax = 0.0;
         double maxX = 0, maxY = 0;

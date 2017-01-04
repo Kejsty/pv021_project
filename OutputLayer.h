@@ -22,14 +22,18 @@ public:
     double countMeanLogLossError();
     double countSumSquaredError() {
         double meanSnapshotError = 0.0;
-        for ( auto &snapshot : snapshots) {
-            meanSnapshotError += snapshot.countSnapshotError();
-        }
+        for( int i = 0; i < snapshots.size() - 1; i++)
+            meanSnapshotError += snapshots[i].countSnapshotError();
         meanSnapshotError /= snapshots.size();
-        snapshots.clear();
-        std::cout << "Sequence Sum Squared Error: " << meanSnapshotError << std::endl;
+        std::cout << "Sequence Sum Squared Error: " << meanSnapshotError << " in " << snapshots.size() << " snapshots" << std::endl;
+        //snapshots.clear();
         return meanSnapshotError;
     }
+    //JB
+    double getProbOfInput(std::vector<double> input){
+        return snapshots[snapshots.size() - 1].getProbOfInput(input);
+    }
+
     virtual bool eval() override;
     virtual void backPropagate( const std::vector<double> & ) override;
     virtual void clear() override {

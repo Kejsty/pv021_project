@@ -9,21 +9,42 @@ void NeuralNetwork::run( ) {
     try {
         InputLayer *inputLayer = dynamic_cast<InputLayer *>(layers[0].get());
         OutputLayer *outputLayer = dynamic_cast<OutputLayer *>(layers[layers.size()-1].get());
+        std::vector<double> curr;
+        std::vector<double> last;
+        int counter = 0;
         while ( inputLayer->hasValues()) {
             while ( !inputLayer->eval()) {
+                //update ImageMaker
+                last = curr;
+                curr = inputLayer->getValues();
+                imageMaker.add_location(curr[0], curr[1]);
+
                 for ( size_t i = 1; i < layers.size(); ++i ) {
                     layers[i].get()->eval();
                 }
             }
+            if(counter > 0) {//update ImageManager
+                double prob = outputLayer->getProbOfInput(curr);
+                std::cout << "prob:" << prob << std::endl << std::endl;
+                //render prob
+            }
+            if(counter == 10){
+                imageMaker.render_input();
+                break;
+            }
+            if(inputLayer->isEndOfSequence())
+                outputLayer->countSumSquaredError();
             for ( size_t i = layers.size(); i > 0; --i ) {
                 layers[i - 1].get()->backPropagate(inputLayer->getValues());
             }
             for ( size_t i = layers.size(); i > 0; --i ) {
                 layers[i - 1].get()->clear();
             }
+            if(counter++ > 1)
+                break;
         }
         std::cout << "Testing started!\n";
-        inputLayer->loadData("parseData/inputExample");
+        inputLayer->loadData("C:\\Users\\xbendik\\ClionProjects\\pv021_project\\parseData\\inputExample");
         while ( inputLayer->hasValues()) {
             while ( !inputLayer->eval()) {
                 for ( size_t i = 1; i < layers.size(); ++i ) {
