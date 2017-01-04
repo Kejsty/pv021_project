@@ -1,24 +1,34 @@
 import xml.etree.ElementTree
 
-e = xml.etree.ElementTree.parse('data/a01/a01-001/strokesz.xml').getroot()
+e = xml.etree.ElementTree.parse(r'strokesz.xml').getroot()
 
 outFile = open('output', 'w')
-#
-# for set in e.iter('Stroke'):
-#     for child in set.iter('Point'):
-#         (child.tag, child.attrib)
 
 
 outputList = ""
 
-
+offsets = []
+last_x = 0
+last_y = 0
+maximum = 0
 for set in e.iter('Stroke'):
     for child in set.iter('Point'):
-        lastPointX = 0
-        lastPointy = 0
-        outputList += "\n" + child.get('x') + " " + child.get('y') +  ' 0'
-    outputList += "1"
-    outFile.write(outputList)
-    outputList = ""
+        x = int(child.get('x'))
+        y = int(child.get('y'))
+        off_x = x - last_x
+        off_y = y - last_y
+        offsets.append((off_x, off_y, 0))
+        last_x = x
+        last_y = y
+        maximum = max(maximum, abs(off_x), abs(off_y))
+    offsets[-1] = (offsets[-1][0],offsets[-1][1],1)
+offsets[0] = (0,0,0)
+
+for rec in offsets:
+    outputList += str(rec[0]/maximum) + " " + str(rec[1]/maximum) + " " + str(rec[2]) + "\n"
+outFile.write(outputList)
+
+
+
 
 
