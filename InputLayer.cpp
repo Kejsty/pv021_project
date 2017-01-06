@@ -63,7 +63,7 @@ bool InputLayer::eval( ) {
     _e.pop();
     if (currentValues[2] == 1) {
 #if PRINT
-        std::cout << "BackProp stared with values : : " << currentValues[0] << ", " << currentValues[1]  << ", " << currentValues[2] << std::endl;
+        std::cout << "End of stroke point : " << currentValues[0] << ", " << currentValues[1]  << ", " << currentValues[2] << std::endl;
 #endif
         loadData();
         return true;

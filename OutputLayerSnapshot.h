@@ -139,7 +139,12 @@ public:
                 maxY = mixtures[mixBeg + m::mu2];
             }
         }
-        return pow((nextInput[0] - maxX), 2) + pow((nextInput[1] - maxY), 2);
+        if (nextInput.size() == 0 ) {
+            //this means there is NO next input. Next input would be 0,0,0.
+            return pow((0 - maxX), 2) + pow((0 - maxY), 2);
+        } else {
+            return pow((nextInput[0] - maxX), 2) + pow((nextInput[1] - maxY), 2);
+        }
     }
 };
 
