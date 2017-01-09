@@ -26,6 +26,7 @@ public:
     NeuralNetwork(const std::string &inputPath) ;
 
     void run();
+    void renderProbs(std::vector<double> location);
 };
 
 

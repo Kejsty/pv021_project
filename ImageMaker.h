@@ -11,18 +11,21 @@
 #include <string>
 
 class ImageMaker {
-    std::vector<std::pair<double,double>> locations;
+    std::vector<std::vector<double> > locations;
     double width;
     double height;
-    double curr_x;
-    double curr_y;
+    int frame; //current frame number
+    int scale_ratio;
+    std::vector<double> curr; //current location
+    std::vector<double> curr_ns; //current location without scale
 
 public:
     ImageMaker(double w = 1500, double h = 800);
-    void add_location(double x, double y);
-    void render_input(std::string path = "C:\\Users\\xbendik\\ClionProjects\\pv021_project\\outputs\\test.pgm");
-    double get_curr_x(){ return curr_x; }
-    double get_curr_y(){ return curr_y; }
+    void addLocation(std::vector<double> location);
+    void renderInput(std::string path = "C:\\Users\\xbendik\\ClionProjects\\pv021_project\\outputs\\test.pgm");
+    void renderProbs(std::string path, std::vector<std::vector<double> > points);
+    double get_curr_x(){ return curr[0]; }
+    double get_curr_y(){ return curr[1]; }
 };
 
 

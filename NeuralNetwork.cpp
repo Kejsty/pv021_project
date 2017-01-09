@@ -4,6 +4,21 @@
 
 #include "NeuralNetwork.h"
 
+void NeuralNetwork::renderProbs(std::vector<double> curr){
+    std::vector<std::vector<double>> points;
+    OutputLayer *outputLayer = dynamic_cast<OutputLayer *>(layers[layers.size()-1].get());
+    double prob;
+    std::vector<double> point (3);
+    for(double x = curr[0] - 0.1; x <= curr[0] + 0.1; x+=0.01)
+        for(double y = curr[0] - 0.1; y <= curr[0] + 0.1; y+=0.01) {
+            point[0] = x;
+            point[1] = y;
+            point[2] = outputLayer->getProbOfInput(point);
+            points.push_back(point);
+        }
+    imageMaker.renderProbs("", points);
+}
+
 void NeuralNetwork::run( ) {
 
     try {
@@ -12,46 +27,43 @@ void NeuralNetwork::run( ) {
         std::vector<double> curr;
         std::vector<double> last;
         int counter = 0;
+        int sequence_counter = 0;
         while ( inputLayer->hasValues()) {
+            counter = 0;
             while ( !inputLayer->eval()) {
                 //update ImageMaker
                 last = curr;
                 curr = inputLayer->getValues();
-                imageMaker.add_location(curr[0], curr[1]);
+                imageMaker.addLocation(curr);
+
+                if(counter > 0 and counter % 1 == 0 ) { //render probs for every point
+                    renderProbs(curr); //render prob distribution for the next point
+                }
 
                 for ( size_t i = 1; i < layers.size(); ++i ) {
                     layers[i].get()->eval();
                 }
+
+                counter++;
             }
-            if(counter > 0) {//update ImageManager
-                double prob = outputLayer->getProbOfInput(curr);
-                std::cout << "prob:" << prob << std::endl << std::endl;
-                //render prob
-            }
-            if(counter == 10){
-                imageMaker.render_input();
-                break;
-            }
-            if(inputLayer->isEndOfSequence())
-                outputLayer->countSumSquaredError();
+            //if(inputLayer->isEndOfSequence())
+            //    outputLayer->countSumSquaredError();
             for ( size_t i = layers.size(); i > 0; --i ) {
-                layers[i - 1].get()->backPropagate(inputLayer->getValues());
+                //layers[i - 1].get()->backPropagate(inputLayer->getValues());
             }
             for ( size_t i = layers.size(); i > 0; --i ) {
                 layers[i - 1].get()->clear();
             }
-            if(counter++ > 1)
-                break;
+            sequence_counter++;
         }
         std::cout << "Testing started!\n";
-        inputLayer->loadData("C:\\Users\\xbendik\\ClionProjects\\pv021_project\\parseData\\inputExample");
+        inputLayer->loadData("C:\\Users\\xbendik\\ClionProjects\\pv021_project\\parseData\\output");
         while ( inputLayer->hasValues()) {
             while ( !inputLayer->eval()) {
                 for ( size_t i = 1; i < layers.size(); ++i ) {
                     layers[i].get()->eval();
                 }
             }
-
             if(inputLayer->isEndOfSequence()){
                 outputLayer->countSumSquaredError();
             }
