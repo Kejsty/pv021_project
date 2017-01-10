@@ -4,7 +4,7 @@
 using namespace std;
 
 int main( ) {
-    NeuralNetwork nn("parseData\\input_007_prolonged.txt");
+    NeuralNetwork nn("parseData\\inputExample");
     nn.run();
     return 0;
 }

@@ -29,7 +29,7 @@ for rec in offsets:
         outputList += str(rec[0]/maximum) + " " + str(rec[1]/maximum) + " " + str(rec[2]) + "\n"
     else: #end of line, start new sequence
         outputList += "0 0 0\n"
-        outputList += "0 0 0\n"
+        #outputList += "0 0 0\n"
 outFile.write(outputList)
 
 
