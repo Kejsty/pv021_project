@@ -1,8 +1,8 @@
 import xml.etree.ElementTree
 
-e = xml.etree.ElementTree.parse(r'strokesz.xml').getroot()
+e = xml.etree.ElementTree.parse(r'strokesz007.xml').getroot()
 
-outFile = open('output', 'w')
+outFile = open('output_007', 'w')
 
 
 outputList = ""
@@ -25,7 +25,11 @@ for set in e.iter('Stroke'):
 offsets[0] = (0,0,0)
 
 for rec in offsets:
-    outputList += str(rec[0]/maximum) + " " + str(rec[1]/maximum) + " " + str(rec[2]) + "\n"
+    if(rec[0]/maximum > -0.5):
+        outputList += str(rec[0]/maximum) + " " + str(rec[1]/maximum) + " " + str(rec[2]) + "\n"
+    else: #end of line, start new sequence
+        outputList += "0 0 0\n"
+        outputList += "0 0 0\n"
 outFile.write(outputList)
 
 

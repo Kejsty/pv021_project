@@ -7,7 +7,7 @@
 #include <sstream>
 #include "ImageMaker.h"
 
-ImageMaker::ImageMaker(double w, double h): width(w), height(h), curr({0,0}), scale_ratio(300), frame(1) {}
+ImageMaker::ImageMaker(double w, double h): width(w), height(h), curr({0,0}), scale_ratio(300), frame(1), sequence(1) {}
 
 void ImageMaker::addLocation(std::vector<double> location) {
     curr[0] += location[0] * scale_ratio;
@@ -16,8 +16,22 @@ void ImageMaker::addLocation(std::vector<double> location) {
     locations.push_back(curr);
 }
 
+void ImageMaker::restart(){
+    curr = {0,0};
+    frame = 1;
+    sequence++;
+    locations.clear();
+}
+
 
 void ImageMaker::renderInput(std::string path) {
+    if(path == "") {
+        std::stringstream p;
+        p << "outputs\\input_";
+        p << sequence << "_" << frame << "_" << (int(curr[0]) + 100) << "_" << (int(curr[1]) + 100) << ".pgm";
+        path = p.str();
+    }
+
     int offset = 100; //starting position is (offset,offset)
     int x = 0, y = 0;
     //build and fill canvas
@@ -27,7 +41,7 @@ void ImageMaker::renderInput(std::string path) {
         y = int(it[1]) + offset;
         //std::cout << "x,y: " << x << " " << y << std::endl;
         if(x >= 0 and x < width and y >= 0 and y < height) {
-            canvas[y][x] = 200;
+            canvas[y][x] = 100;
         }
     }
 
@@ -51,8 +65,8 @@ void ImageMaker::renderInput(std::string path) {
 void ImageMaker::renderProbs(std::string path, std::vector<std::vector<double> > points){
     if(path == "") {
         std::stringstream p;
-        p << "C:\\Users\\xbendik\\ClionProjects\\pv021_project\\outputs\\prob\\prob_";
-        p << frame << "_" << (int(curr[0]) + 100) << "_" << (int(curr[1]) + 100) << ".ppm";
+        p << "outputs\\prob_";
+        p << sequence << "_" << frame << "_" << (int(curr[0]) + 100) << "_" << (int(curr[1]) + 100) << ".ppm";
         path = p.str();
     }
 

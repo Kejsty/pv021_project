@@ -16,16 +16,18 @@ class ImageMaker {
     double height;
     int frame; //current frame number
     int scale_ratio;
+    int sequence;
     std::vector<double> curr; //current location
     std::vector<double> curr_ns; //current location without scale
 
 public:
-    ImageMaker(double w = 1500, double h = 800);
+    ImageMaker(double w = 500, double h = 300);
     void addLocation(std::vector<double> location);
     void renderInput(std::string path = "C:\\Users\\xbendik\\ClionProjects\\pv021_project\\outputs\\test.pgm");
     void renderProbs(std::string path, std::vector<std::vector<double> > points);
     double get_curr_x(){ return curr[0]; }
     double get_curr_y(){ return curr[1]; }
+    void restart();
 };
 
 

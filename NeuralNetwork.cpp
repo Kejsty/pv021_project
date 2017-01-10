@@ -36,7 +36,7 @@ void NeuralNetwork::run( ) {
                 curr = inputLayer->getValues();
                 imageMaker.addLocation(curr);
 
-                if(counter > 0 and counter % 1 == 0 ) { //render probs for every point
+                if(counter > 0 and sequence_counter > 0 ) { //start after 1st sequence
                     renderProbs(curr); //render prob distribution for the next point
                 }
 
@@ -46,15 +46,21 @@ void NeuralNetwork::run( ) {
 
                 counter++;
             }
-            //if(inputLayer->isEndOfSequence())
-            //    outputLayer->countSumSquaredError();
+            if(inputLayer->isEndOfSequence()) {
+#if PRINT
+                std::cout << "end of " << sequence_counter << ". sequence" << std::endl;
+#endif
+                outputLayer->countSumSquaredError();
+                //imageMaker.renderInput("");
+                imageMaker.restart();
+                sequence_counter++;
+            }
             for ( size_t i = layers.size(); i > 0; --i ) {
-                //layers[i - 1].get()->backPropagate(inputLayer->getValues());
+                layers[i - 1].get()->backPropagate(inputLayer->getValues());
             }
             for ( size_t i = layers.size(); i > 0; --i ) {
                 layers[i - 1].get()->clear();
             }
-            sequence_counter++;
         }
         std::cout << "Testing started!\n";
         inputLayer->loadData("C:\\Users\\xbendik\\ClionProjects\\pv021_project\\parseData\\output");
