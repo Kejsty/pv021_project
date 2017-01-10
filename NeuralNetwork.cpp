@@ -72,6 +72,8 @@ void NeuralNetwork::run( ) {
             }
             if(inputLayer->isEndOfSequence()){
                 outputLayer->countSumSquaredError();
+                // option for meanLogLoss error
+                //outputLayer->countMeanLogLossError();
             }
             for ( size_t i = layers.size(); i > 0; --i ) {
                 layers[i - 1].get()->clear();

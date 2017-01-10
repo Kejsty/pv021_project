@@ -20,7 +20,7 @@ public:
     //must be implemented!
     virtual bool eval() override;
     virtual void backPropagate( const std::vector<double> & ) override {
-        std::cout << "BackProp end \n";
+        std::cout << "BackProp ended \n";
     }
     virtual void clear() override {}
     const std::vector<double> &getValues() const override {

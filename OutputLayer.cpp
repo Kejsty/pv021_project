@@ -68,7 +68,8 @@ void OutputLayer::backPropagate( const std::vector<double> &lastInput ) {
     //count my current error from my snapshot
     matrix weightsForErrMap(_underLayers.size());
 #if PRINT
-    std::cout << "OL : Processing " << snapshots.size() << "snapshots\n";
+    std::cout << "BackProp started\n";
+    std::cout << "O : Processing " << snapshots.size() << "snapshots\n";
 #endif
     for ( auto it = snapshots.rbegin(); it != snapshots.rend(); ++it ) {
         std::vector<double> result = it->evaluate();
